@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: gap:">
+  <title>Lucky Draw</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="apple-touch-icon" href="img/f7-icon-square.png">
+  <link rel="icon" href="img/f7-icon.png">
+  <script type="text/javascript" src="js/jquery-3.4.1.min.js"></script>
+  <script type="text/javascript" src="js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="js/winwheel.min.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenMax.min.js"></script>
+</head>
+<body>
+  <div class="loading" style="display:none;">Loading&#8230;</div>
+  <div style="text-align:center;">
+    <div class="bg" style="margin:auto;">
+      <div class="wrapper">
+          <table width="100%" class="lucky-table">
+            <tbody>
+                <tr>
+                    <td align="center">
+                        <canvas id="imgCanvas" class="tutCanvas" width="476" height="476">
+                            Canvas not supported, please user another browser.
+                        </canvas>
+                    </td>
+                </tr>
+            </tbody>
+          </table>
+          <div class="lucky-frame"></div>
+          <div class="lucky-logo" onclick="startSpin();"></div>
+          <div class="lucky-spin"></div>
+          <div class="store-logo">
+            <img border="0" src="img/vinmart.png" id="vinmart"/>
+            <img border="0" src="img/lotte.png" id="lotte"/>
+            <img border="0" src="img/coop.png" id="coop"/>
+            <img border="0" src="img/bigc.png" id="bigc"/>
+            <img border="0" src="img/aeon.png" id="aeon"/>
+          </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Create new wheel object specifying the parameters at creation time.
+    let theWheel = new Winwheel({
+        'canvasId' : 'imgCanvas',
+        'numSegments'       : 12,         // Specify number of segments.
+        'outerRadius'       : 0,       // Set outer radius so wheel fits inside the background.
+        'drawMode'          : 'image',   // drawMode must be set to image.
+        'drawText'          : false,      // Need to set this true if want code-drawn text on image wheels.
+        'segments'     :                // Define segments.
+        [
+           {'text' : 'Bao iPhone thể thao'},
+           {'text' : 'Túi rút thể thao'},
+           {'text' : 'Vớ thể thao'},
+           {'text' : 'Bao iPhone thể thao'},
+           {'text' : 'Túi rút thể thao'},
+           {'text' : 'Vớ thể thao'},
+           {'text' : 'Bao iPhone thể thao'},
+           {'text' : 'Túi rút thể thao'},
+           {'text' : 'Vớ thể thao'},
+           {'text' : 'Bao iPhone thể thao'},
+           {'text' : 'Túi rút thể thao'},
+           {'text' : 'Vớ thể thao'}
+        ],
+        'animation' :                   // Specify the animation to use.
+        {
+            'type'     : 'spinToStop',
+            'duration' : 5,     // Duration in seconds.
+            'spins'    : 8,     // Number of complete spins.
+            'callbackFinished' : alertPrize
+        }
+    });
+
+    // Create new image object in memory.
+    let loadedImg = new Image();
+
+    // Create callback to execute once the image has finished loading.
+    loadedImg.onload = function()
+    {
+        theWheel.wheelImage = loadedImg;    // Make wheelImage equal the loaded image object.
+        theWheel.draw();                    // Also call draw function to render the wheel.
+    }
+
+    // Set the image source, once complete this will trigger the onLoad callback (above).
+    loadedImg.src = "img/lucky-disk-rotate.png";
+
+
+
+    // Vars used by the code in this page to do power controls.
+    let wheelPower    = 1;
+    let wheelSpinning = false;
+    let _iPhone = 0;
+    let _sock = 20;
+    let _bag = 50;
+    let _store = "";
+    let _prize = "sock";
+    let _angle = _sock;
+
+    // -------------------------------------------------------
+    // Click handler for spin button.
+    // -------------------------------------------------------
+    function startSpin()
+    {
+        if(wheelSpinning)
+            return;
+        if(_store=="")
+        {
+            $('#select_store').modal("show");
+            return;
+        }
+        if(_prize=="sock") _angle = _sock;
+        if(_prize=="iPhone") _angle = _iPhone;
+        if(_prize=="bag") _angle = _bag;
+        theWheel.animation.stopAngle = _sock;
+        // Ensure that spinning can't be clicked again while already running.
+        if (wheelSpinning == false) {
+            // Begin the spin animation by calling startAnimation on the wheel object.
+            theWheel.startAnimation();
+            // Set to true so that power can't be changed and spin button re-enabled during
+            // the current animation. The user will have to reset before spinning again.
+            wheelSpinning = true;
+        }
+    }
+
+    // -------------------------------------------------------
+    // Function for reset button.
+    // -------------------------------------------------------
+    function resetWheel()
+    {
+        theWheel.stopAnimation(false);  // Stop the animation, false as param so does not call callback function.
+        theWheel.rotationAngle = 0;     // Re-set the wheel angle to 0 degrees.
+        theWheel.draw();                // Call draw to render changes to the wheel.
+        wheelSpinning = false;          // Reset to false to power buttons and spin can be clicked again.
+    }
+
+    // -------------------------------------------------------
+    // Called when the spin animation has finished by the callback feature of the wheel because I specified callback in the parameters.
+    // note the indicated segment is passed in as a parmeter as 99% of the time you will want to know this to inform the user of their prize.
+    // -------------------------------------------------------
+    function alertPrize(indicatedSegment)
+    {   
+        var _prizename = "Vớ thể thao";
+        if(_prize=="iPhone") _prizename = "Bao iPhone thể thao";
+        if(_prize=="bag") _prizename = "Túi rút thể thao";
+        //Load new prize from server first, then display this prize and reset wheel
+        $('#prizename').html(_prizename);
+        $('#win').modal('show');
+        //resetWheel();
+    }
+      
+    function confirmStore()
+    {
+        if($.trim($('#store').val()) == "")
+            return;
+        if($('.store-logo #' + $('#store').val()).length > 0)
+        {
+            $('.store-logo img').hide();
+            $('.store-logo #' + $('#store').val()).show();
+            _store = $('#store').val();
+            $('.loading').show();
+        }
+        $('#select_store').modal("hide");
+    }
+      
+    $(function(){ $('#select_store').modal("show"); });
+  </script>
+    
+    
+<!-- Modal -->
+<div class="modal fade" id="select_store" tabindex="-1" role="dialog" aria-labelledby="title1" aria-hidden="true">
+  <div class="modal-dialog  modal-sm modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="title1">Nhập mã siêu thị</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input class="form-control" id="store" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="confirmStore();">Xác nhận</button>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+<!-- Modal -->
+<div class="modal fade" id="win" tabindex="-1" role="dialog" aria-labelledby="title2" aria-hidden="true">
+  <div class="modal-dialog  modal-md modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="title2">Chúc mừng bạn!</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <h2>Bạn đã trúng 1 "<span id="prizename">Vớ thể thao</span>"</h2>
+        <p>Vui lòng nhập các thông tin sau để hoàn tất việc nhận giải.</p>
+        <form>
+          <div class="form-group">
+            <label for="input1">Họ và tên</label>
+            <input type="text" class="form-control" id="input1">
+          </div>
+          <div class="form-group">
+            <label for="input2">Số điện thoại</label>
+            <input type="phone" class="form-control" id="input2">
+          </div>
+          <div class="form-group">
+            <label for="input3">Số hoá đơn</label>
+            <input type="text" class="form-control" id="input3" aria-describedby="emailHelp">
+            <small id="emailHelp" class="form-text text-muted">Nhập mã trên hoá đơn mua hàng tại siêu thị</small>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="finish();">Xác nhận</button>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+</body>
+</html>
