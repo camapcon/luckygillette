@@ -42,6 +42,7 @@
             <img border="0" src="img/bigc.png" id="bigc"/>
             <img border="0" src="img/aeon.png" id="aeon"/>
           </div>
+          <div style="display:block; width:180px; height:50px; position:absolute; left:0px; top:-30px; z-index:10;" onclick="initGame();"></div>
       </div>
     </div>
   </div>
@@ -95,12 +96,13 @@
     // Vars used by the code in this page to do power controls.
     let wheelPower    = 1;
     let wheelSpinning = false;
-    let _iPhone = 0;
-    let _sock = 20;
+    let _iPhone = -10;
+    let _sock = 25;
     let _bag = 50;
     let _store = "";
     let _prize = "sock";
     let _angle = _sock;
+    let _id = 0;
 
     // -------------------------------------------------------
     // Click handler for spin button.
@@ -115,9 +117,9 @@
             return;
         }
         if(_prize=="sock") _angle = _sock;
-        if(_prize=="iPhone") _angle = _iPhone;
+        if(_prize=="iphone") _angle = _iPhone;
         if(_prize=="bag") _angle = _bag;
-        theWheel.animation.stopAngle = _sock;
+        theWheel.animation.stopAngle = _angle;
         // Ensure that spinning can't be clicked again while already running.
         if (wheelSpinning == false) {
             // Begin the spin animation by calling startAnimation on the wheel object.
@@ -146,7 +148,7 @@
     function alertPrize(indicatedSegment)
     {   
         var _prizename = "Vớ thể thao";
-        if(_prize=="iPhone") _prizename = "Bao iPhone thể thao";
+        if(_prize=="iphone") _prizename = "Bao iPhone thể thao";
         if(_prize=="bag") _prizename = "Túi rút thể thao";
         //Load new prize from server first, then display this prize and reset wheel
         $('#prizename').html(_prizename);
@@ -163,9 +165,37 @@
             $('.store-logo img').hide();
             $('.store-logo #' + $('#store').val()).show();
             _store = $('#store').val();
-            $('.loading').show();
+            initGame();
         }
         $('#select_store').modal("hide");
+    }
+      
+    function initGame()
+    {
+        resetWheel();
+        $('.loading').show();
+        $.getJSON('http://gillette.liveapps.top/index.php/game/initgame/' + _store, function(result){
+            $('.loading').hide();
+            _prize = result.prize;
+            _id = result.id;
+        });
+    }
+      
+    function finishGame()
+    {
+        $('.loading').show();
+        $('#win').modal("hide");
+        $.post('http://gillette.liveapps.top/index.php/game/finishgame/' + _id, {
+            fullname:$('#input1').val(),
+            phone:$('#input2').val(),
+            billcode:$('#input3').val()
+        }, function(result){
+            if($.trim(result)=='DUP')
+            {
+                alert("Số hoá đơn này đã được sử dụng rồi!");
+            }
+            initGame();
+        });
     }
       
     $(function(){ $('#select_store').modal("show"); });
@@ -223,7 +253,7 @@
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" onclick="finish();">Xác nhận</button>
+        <button type="button" class="btn btn-primary" onclick="finishGame();">Xác nhận</button>
       </div>
     </div>
   </div>
