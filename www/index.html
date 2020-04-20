@@ -80,6 +80,8 @@
 
     // Create new image object in memory.
     let loadedImg = new Image();
+    let loadedImg_bigc = new Image();
+    let loadedImg_vinmart = new Image();
 
     // Create callback to execute once the image has finished loading.
     loadedImg.onload = function()
@@ -90,6 +92,8 @@
 
     // Set the image source, once complete this will trigger the onLoad callback (above).
     loadedImg.src = "img/lucky-disk-rotate.png";
+    loadedImg_bigc.src = "img/lucky-disk-rotate-bigc.png";
+    loadedImg_vinmart.src = "img/lucky-disk-rotate-vinmart.png";
 
 
 
@@ -103,6 +107,7 @@
     let _prize = "sock";
     let _angle = _sock;
     let _id = 0;
+    let stores = { "ae001":"aeon", "co002":"coop", "lo003":"lotte", "bi004":"bigc", "vi005":"vinmart", "vi006":"vinplus" };
 
     // -------------------------------------------------------
     // Click handler for spin button.
@@ -160,11 +165,27 @@
     {
         if($.trim($('#store').val()) == "")
             return;
+        var __s = $.trim($('#store').val());
+        if(typeof(stores[__s])=='undefined')
+        {
+            alert("Mã siêu thị không đúng");
+            return;
+        }
+        _store = stores[__s];
+        if(_store == "bigc")
+        {
+            theWheel.wheelImage = loadedImg_bigc;
+            theWheel.draw();
+        }
+        if(_store == "vinmart")
+        {
+            theWheel.wheelImage = loadedImg_vinmart;
+            theWheel.draw();
+        }
         if($('.store-logo #' + $('#store').val()).length > 0)
         {
             $('.store-logo img').hide();
             $('.store-logo #' + $('#store').val()).show();
-            _store = $('#store').val();
             initGame();
         }
         $('#select_store').modal("hide");
@@ -178,6 +199,10 @@
             $('.loading').hide();
             _prize = result.prize;
             _id = result.id;
+            if(_prize=='OUTSTOCK')
+            {
+                alert("Rất tiếc. Các phần quà đã hết!");
+            }
         });
     }
       
@@ -186,13 +211,22 @@
         $('.loading').show();
         $('#win').modal("hide");
         $.post('http://gillette.liveapps.top/index.php/game/finishgame/' + _id, {
-            fullname:$('#input1').val(),
-            phone:$('#input2').val(),
-            billcode:$('#input3').val()
+            fullname:$('#fullname').val(),
+            phone:$('#phone').val(),
+            billcode:$('#billcode').val(),
+            billamount:$('#billamount').val(),
+            idno:$('#idno').val(),
+            email:$('#email').val()
         }, function(result){
             if($.trim(result)=='DUP')
             {
                 alert("Số hoá đơn này đã được sử dụng rồi!");
+                return;
+            }
+            if($.trim(result)=='CMND')
+            {
+                alert("Số CMND này đã tham gia chơi rồi!");
+                return;
             }
             initGame();
         });
@@ -239,16 +273,30 @@
         <form>
           <div class="form-group">
             <label for="input1">Họ và tên</label>
-            <input type="text" class="form-control" id="input1">
+            <input type="text" class="form-control" id="fullname">
+          </div>
+          <div class="form-group">
+            <label for="input3">Số CMND</label>
+            <input type="text" class="form-control" id="idno" aria-describedby="emailHelp">
+            <small id="emailHelp" class="form-text text-muted">Nhập chính xác số CMND để nhận quà</small>
+          </div>
+          <div class="form-group">
+            <label for="input3">Email</label>
+            <input type="text" class="form-control" id="email" aria-describedby="emailHelp">
           </div>
           <div class="form-group">
             <label for="input2">Số điện thoại</label>
-            <input type="phone" class="form-control" id="input2">
+            <input type="phone" class="form-control" id="phone">
           </div>
           <div class="form-group">
             <label for="input3">Số hoá đơn</label>
-            <input type="text" class="form-control" id="input3" aria-describedby="emailHelp">
+            <input type="text" class="form-control" id="billcode" aria-describedby="emailHelp">
             <small id="emailHelp" class="form-text text-muted">Nhập mã trên hoá đơn mua hàng tại siêu thị</small>
+          </div>
+          <div class="form-group">
+            <label for="input3">Số tiền mua hàng</label>
+            <input type="text" class="form-control" id="billamount" aria-describedby="emailHelp">
+            <small id="emailHelp" class="form-text text-muted">Nhập đúng số tiền trên hoá đơn</small>
           </div>
         </form>
       </div>
