@@ -105,6 +105,7 @@
     let _bag = 50;
     let _store = "";
     let _prize = "sock";
+    let _prizename = "Vớ Gillette";
     let _angle = _sock;
     let _id = 0;
     let stores = { "ae001":"aeon", "co002":"coop", "lo003":"lotte", "bi004":"bigc", "vi005":"vinmart", "vi006":"vinplus" };
@@ -152,10 +153,6 @@
     // -------------------------------------------------------
     function alertPrize(indicatedSegment)
     {   
-        var _prizename = "Vớ thể thao";
-        if(_prize=="iphone") _prizename = "Bao iPhone thể thao";
-        if(_prize=="bag") _prizename = "Túi rút thể thao";
-        //Load new prize from server first, then display this prize and reset wheel
         $('#prizename').html(_prizename);
         $('#win').modal('show');
         //resetWheel();
@@ -198,7 +195,9 @@
         $.getJSON('http://gillette.liveapps.top/index.php/game/initgame/' + _store, function(result){
             $('.loading').hide();
             _prize = result.prize;
+            _prizename = result.prizename;
             _id = result.id;
+            $('#prizename').html(_prizename);
             if(_prize=='OUTSTOCK')
             {
                 alert("Rất tiếc. Các phần quà đã hết!");
