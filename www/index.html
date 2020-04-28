@@ -98,17 +98,17 @@
 
 
     // Vars used by the code in this page to do power controls.
-    let wheelPower    = 1;
-    let wheelSpinning = false;
-    let _iPhone = -10;
-    let _sock = 25;
-    let _bag = 50;
-    let _store = "";
-    let _prize = "sock";
-    let _prizename = "Vớ Gillette";
-    let _angle = _sock;
-    let _id = 0;
-    let stores = { "ae001":"aeon", "co002":"coop", "lo003":"lotte", "bi004":"bigc", "vi005":"vinmart", "vi006":"vinplus" };
+    var wheelPower    = 1;
+    var wheelSpinning = false;
+    var _iPhone = -10;
+    var _sock = 25;
+    var _bag = 50;
+    var _store = "";
+    var _prize = "sock";
+    var _prizename = "Vớ Gillette";
+    var _angle = _sock;
+    var _id = 0;
+    var stores = { "ae001":"aeon", "co002":"coop", "lo003":"lotte", "bi004":"bigc", "vi005":"vinmart", "vi006":"vinplus" };
 
     // -------------------------------------------------------
     // Click handler for spin button.
@@ -169,6 +169,7 @@
             return;
         }
         _store = stores[__s];
+        console.log(_store);
         if(_store == "bigc")
         {
             theWheel.wheelImage = loadedImg_bigc;
@@ -179,13 +180,14 @@
             theWheel.wheelImage = loadedImg_vinmart;
             theWheel.draw();
         }
-        if($('.store-logo #' + $('#store').val()).length > 0)
+        console.log($('.store-logo #' + _store));
+        if($('.store-logo #' + _store).length > 0)
         {
             $('.store-logo img').hide();
-            $('.store-logo #' + $('#store').val()).show();
+            $('.store-logo #' + _store).show();
             initGame();
+            $('#select_store').modal("hide");
         }
-        $('#select_store').modal("hide");
     }
       
     function initGame()
