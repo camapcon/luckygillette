@@ -103,12 +103,15 @@
     var _iPhone = -10;
     var _sock = 25;
     var _bag = 50;
+    var _speaker = 25;
+    var _bottle = -10;
+    var _shave = 25;
     var _store = "";
     var _prize = "sock";
     var _prizename = "Vớ Gillette";
     var _angle = _sock;
     var _id = 0;
-    var stores = { "ae001":"aeon", "co002":"coop", "lo003":"lotte", "bi004":"bigc", "vi005":"vinmart", "vi006":"vinplus" };
+    var stores = { "ae001":"aeon", "co002":"coop", "lo003":"lotte", "bi004":"bigc", "vi00501":"vinmart1", "vi00502":"vinmart2", "vi00503":"vinmart3", "vi00504":"vinmart4", "vi00505":"vinmart5", "vi00506":"vinmart6", "vi00507":"vinmart7", "vi00508":"vinmart8", "vi00509":"vinmart9", "vi00510":"vinmart10", "vi00511":"vinmart11", "vi00512":"vinmart12", "vi00513":"vinmart13", "vi00514":"vinmart14", "vi006":"vinplus" };
 
     // -------------------------------------------------------
     // Click handler for spin button.
@@ -125,6 +128,9 @@
         if(_prize=="sock") _angle = _sock;
         if(_prize=="iphone") _angle = _iPhone;
         if(_prize=="bag") _angle = _bag;
+        if(_prize=="speaker") _angle = _speaker;
+        if(_prize=="bottle") _angle = _bottle;
+        if(_prize=="shave") _angle = _shave;
         theWheel.animation.stopAngle = _angle;
         // Ensure that spinning can't be clicked again while already running.
         if (wheelSpinning == false) {
@@ -169,24 +175,28 @@
             return;
         }
         _store = stores[__s];
-        console.log(_store);
         if(_store == "bigc")
         {
             theWheel.wheelImage = loadedImg_bigc;
             theWheel.draw();
         }
-        if(_store == "vinmart")
+        
+        if(_store.indexOf("vinmart")===0)
         {
             theWheel.wheelImage = loadedImg_vinmart;
             theWheel.draw();
         }
-        console.log($('.store-logo #' + _store));
-        if($('.store-logo #' + _store).length > 0)
+        var ___s = _store;
+        if(_store.indexOf("vinmart")===0)
+        {
+          ___s = "vinmart";
+        }
+        if($('.store-logo #' + ___s).length > 0)
         {
             $('.store-logo img').hide();
-            $('.store-logo #' + _store).show();
+            $('.store-logo #' + ___s).show();
             initGame();
-            $('#select_store').modal("hide");
+            $('#select_store').modal('hide');
         }
     }
       
